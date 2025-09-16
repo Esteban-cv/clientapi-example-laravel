@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Session;
 
 class OrderController extends Controller
 {
+
+    private $cities = [
+        ['name' => 'TULUA', 'value' => 'TULUA'],
+        ['name' => 'CALI', 'value' => 'CALI'],
+        ['name' => 'BUGA', 'value' => 'BUGA'],
+        ['name' => 'PALMIRA', 'value' => 'PALMIRA']
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -29,7 +37,17 @@ class OrderController extends Controller
      */
     public function create()
     {
-        return view('order.create');
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $responseCausals = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/causal');
+        $responseObservations = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/observation');
+        if ($responseCausals->successful() and $responseObservations->successful()) {
+            $causals = $responseCausals->json();
+            $observations = $responseObservations->json();
+            $cities = $this->cities;
+            return view('order.create', compact('causals', 'observations', 'cities'));
+        } else {
+            abort($responseCausals->status());
+        }
     }
 
     /**
@@ -39,27 +57,21 @@ class OrderController extends Controller
     {
         $url = env('URL_BASE_API', "http://localhost:8000");
         $response = Http::acceptJson()->withToken(Session::get('token'))->post($url . '/order', [
-            'description' => $request->description
+            'legalization_date' => $request->legalization_date,
+            'address' => $request->address,
+            'city' => $request->city,
+            'causal_id' => $request->causal_id,
+            'observation_id' => $request->observation_id
         ]);
         if ($response->successful()) {
             session()->flash('message', 'La orden se creo correctamente');
             return redirect()->route('order.index');
-        }
-        elseif($response->status() == Response::HTTP_BAD_REQUEST) {
+        } elseif ($response->status() == Response::HTTP_BAD_REQUEST) {
             $errors = $response->json()['errors'];
             return redirect()->route('order.create')->withInput()->withErrors($errors);
-        }
-        else {
+        } else {
             abort($response->status());
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -67,7 +79,34 @@ class OrderController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $response = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/' . $id);
+        if ($response->successful()) {
+            $responseCausals = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/causal');
+            $responseObservations = Http::acceptJson()->withToken(Session::get('token'))->get($url . 'observation');
+            if ($responseCausals->successful() and $responseObservations->successful()) {
+
+                //consultar actividades disponibles
+                $availableActivities = [];
+
+                //Consultar actividades agregadas a la orden
+                $addedActivities = [];
+
+
+                $causals = $responseCausals->json();
+                $observations = $responseObservations->json();
+                $order = $response->json();
+                $cities = $this->cities;
+                return view('order.edit', compact('order', 'causals', 'observations', 'cities', 'availableActivities', 'addedActivities'));
+            } else {
+                abort($responseCausals->status());
+            }
+        } elseif ($response->status() == Response::HTTP_BAD_REQUEST) {
+            $errors = $response->json()['errors'];
+            return redirect()->route('order.index')->withInput()->withErrors($errors);
+        } else {
+            abort($response->status());
+        }
     }
 
     /**
@@ -75,7 +114,24 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $response = Http::acceptJson()->withToken(Session::get('token'))->put($url . '/order/' . $id, [
+            'id' => $request->id,
+            'legalization_date' => $request->legalization_date,
+            'address' => $request->address,
+            'city' => $request->city,
+            'causal_id' => $request->causal_id,
+            'observation_id' => $request->observation_id
+        ]);
+        if ($response->successful()) {
+            session()->flash('message', 'La orden se actualizó correctamente');
+            return redirect()->route('order.index');
+        } elseif ($response->status() == Response::HTTP_BAD_REQUEST) {
+            $errors = $response->json()['errors'];
+            return redirect()->route('order.edit')->withInput()->withErrors($errors);
+        } else {
+            abort($response->status());
+        }
     }
 
     /**
@@ -83,6 +139,16 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $response = Http::acceptJson()->withToken(Session::get('token'))->delete($url . '/order/' . $id);
+        if ($response->successful()) {
+            session()->flash('message', 'La orden se eliminó correctamente');
+            return redirect()->route('order.index');
+        } elseif ($response->status() == Response::HTTP_BAD_REQUEST) {
+            $errors = $response->json()['errors'];
+            return redirect()->route('order.index')->withInput()->withErrors($errors);
+        } else {
+            abort($response->status());
+        }
     }
 }

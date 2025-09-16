@@ -74,7 +74,7 @@ Route::prefix('typeactivity')->group(function(){
 
 
 // // RUTA PARA ACTIVITY
-Route::middleware(['auth', 'can:admin-supervisor'])->prefix('activity')->group(function(){
+Route::prefix('activity')->group(function(){
     Route::get('/index',[ActivityController::class, 'index'])->name('activity.index');
     Route::get('/create',[ActivityController::class, 'create'])->name('activity.create'); 
     Route::get('/edit/{id}',[ActivityController::class, 'edit'])->name('activity.edit');
@@ -85,7 +85,7 @@ Route::middleware(['auth', 'can:admin-supervisor'])->prefix('activity')->group(f
 
 
 // // RUTA PARA ORDER
-Route::middleware(['auth', 'can:admin-supervisor'])->prefix('order')->group(function(){
+Route::prefix('order')->group(function(){
     Route::get('/index',[OrderController::class, 'index'])->name('order.index');
     Route::get('/create',[OrderController::class, 'create'])->name('order.create'); 
     Route::get('/edit/{id}',[OrderController::class, 'edit'])->name('order.edit');
