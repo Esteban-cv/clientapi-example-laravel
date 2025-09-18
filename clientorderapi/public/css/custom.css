@@ -1,0 +1,44 @@
+.bg-gradient-primary {
+    background-color: rgb(255, 0, 0) !important;
+}
+
+h1{
+    color: brown;
+    font-weight: bold;
+}
+button {
+    background-color: darkblue;
+    color: aliceblue;
+}
+q {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+}
+.img_banner {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.copyright {
+    margin: 0 auto;
+    font-style: italic;
+    font-size: medium;
+    color: gray;
+}
+
+.vertical-menu {
+    width: 200px;
+}
+
+.vertical-menu a {
+    background-color: #d6d5d5;
+    color: black;
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+}
+
+.vertical-menu a:hover {
+    background-color: #eee;
+}
