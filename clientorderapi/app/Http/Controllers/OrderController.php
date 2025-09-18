@@ -83,21 +83,14 @@ class OrderController extends Controller
         $response = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/' . $id);
         if ($response->successful()) {
             $responseCausals = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/causal');
-            $responseObservations = Http::acceptJson()->withToken(Session::get('token'))->get($url . 'observation');
+            $responseObservations = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/observation');
             if ($responseCausals->successful() and $responseObservations->successful()) {
-
-                //consultar actividades disponibles
-                $availableActivities = [];
-
-                //Consultar actividades agregadas a la orden
-                $addedActivities = [];
-
 
                 $causals = $responseCausals->json();
                 $observations = $responseObservations->json();
                 $order = $response->json();
                 $cities = $this->cities;
-                return view('order.edit', compact('order', 'causals', 'observations', 'cities', 'availableActivities', 'addedActivities'));
+                return view('order.edit', compact('order', 'causals', 'observations', 'cities'));
             } else {
                 abort($responseCausals->status());
             }
@@ -151,4 +144,55 @@ class OrderController extends Controller
             abort($response->status());
         }
     }
+
+
+    /**
+     * añade una actividad a la orden
+     */
+    public function add_activity(String $order_id, String $activity_id) {
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $responseOrder = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/' . $order_id);
+        $responseActivity = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/activity/' . $activity_id);
+        if($responseOrder->successful() and $responseActivity->successful()) {
+            //guardar actividad en order_activity
+            $response = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/add_activity/' . $order_id. '/' . $activity_id);
+            if($response->successful()) {
+                session()->flash('message', 'Actividad agregada exitosamente');
+                return redirect()->route('order.edit', $order_id);
+            }
+            else {
+                session()->flash('error', 'Error agregando la actividad');
+            }
+            return redirect()->route('order.edit', $order_id);
+        }
+        else {
+            abort($responseOrder->status());
+        }
+    }
+
+
+    /**
+     * Retira una acitvidad a la orden
+     */
+    public function remove_activity(String $order_id, String $activity_id) {
+        $url = env('URL_BASE_API', "http://localhost:8000");
+        $responseOrder = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/' . $order_id);
+        $responseActivity = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/activity/' . $activity_id);
+        if($responseOrder->successful() and $responseActivity->successful()) {
+            //guardar actividad en order_activity
+            $response = Http::acceptJson()->withToken(Session::get('token'))->get($url . '/order/remove_activity/' . $order_id. '/' . $activity_id);
+            if($response->successful()) {
+                session()->flash('message', 'Actividad removida exitosamente');
+                return redirect()->route('order.edit', $order_id);
+            }
+            else {
+                session()->flash('error', 'Error removiendo la actividad');
+            }
+            return redirect()->route('order.edit', $order_id);
+        }
+        else {
+            abort($responseOrder->status());
+        }
+    }
 }
+

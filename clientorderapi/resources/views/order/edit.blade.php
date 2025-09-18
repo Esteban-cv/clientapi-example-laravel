@@ -5,37 +5,37 @@
     @include('templates.messages')
     <div class="row">
         <div class="col-lg-12 mb-4">
-            <form action="{{ route('order.update', $order) }}" method="POST">
+            <form action="{{ route('order.update', $order['order']) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="row form-group">
                     <div class="col-lg-6 mb-4">
                         <label for="legalization_date">Fecha Legalización</label>
                         <input type="date" class="form-control" name="legalization_date" id="legalization_date"
-                            value="{{ $order['legalization_date'] }}" required>
+                            value="{{ $order['order']['legalization_date'] }}" required>
                     </div>
                     <div class="col-lg-6 mb-4">
                         <label for="address">Dirección</label>
                         <input type="text" class="form-control" name="address" id="address"
-                            value="{{ $order['address'] }}" required>
+                            value="{{ $order['order']['address'] }}" required>
                     </div>
                 </div>
                 <div class="row form-group">
                     <div class="col-lg-6 mb-4">
                         <label for="city">Ciudad</label>
-                        <select name="city" id="city" class="form-control" required value="{{ $order['city'] }}">
+                        <select name="city" id="city" class="form-control" required value="{{ $order['order']['city'] }}">
                             @foreach ($cities as $city)
-                                <option value="{{ $city['value'] }}" @if ($city['value'] == $order['city']) selected @endif>
+                                <option value="{{ $city['value'] }}" @if ($city['value'] == $order['order']['city']) selected @endif>
                                     {{ $city['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-lg-6 mb-4">
                         <label for="causal_id">Causal</label>
-                        <select name="causal_id" id="causal_id" class="form-control" value="{{ $order['causal_id'] }}">
+                        <select name="causal_id" id="causal_id" class="form-control" value="{{ $order['order']['causal_id'] }}">
                             <option value="">Seleccione</option>
                             @foreach ($causals as $causal)
-                                <option value="{{ $causal['id'] }}" @if ($causal['id'] == $order['causal_id']) selected @endif>
+                                <option value="{{ $causal['id'] }}" @if ($causal['id'] == $order['order']['causal_id']) selected @endif>
                                     {{ $causal['description'] }}
                                 </option>
                             @endforeach
@@ -48,7 +48,7 @@
                         <select name="observation_id" id="observation_id" class="form-control">
                             <option value="">Seleccione</option>
                             @foreach ($observations as $observation)
-                                <option value="{{ $observation['id'] }}" @if ($observation['id'] == $order['observation_id']) selected @endif>
+                                <option value="{{ $observation['id'] }}" @if ($observation['id'] == $order['order']['observation_id']) selected @endif>
                                     {{ $observation['description'] }}
                                 </option>
                             @endforeach
@@ -84,20 +84,20 @@
                                             <th>Agregar</th>
                                         </thead>
                                         <tbody>
-                                            @if (count($availableActivities) == 0)
+                                            @if (count($order['availableActivities']) == 0)
                                                 <tr>
                                                     <td colspan="4">
                                                         No existen actividades disponibles
                                                     </td>
                                                 </tr>
                                             @else
-                                                @foreach($availableActivities as $activity)
+                                                @foreach($order['availableActivities'] as $activity)
                                                 <tr>
-                                                    <td>{{ $activity->id }}</td>
-                                                    <td>{{ $activity->description }}</td>
-                                                    <td>{{ $activity->hours }}</td>
+                                                    <td>{{ $activity['id'] }}</td>
+                                                    <td>{{ $activity['description'] }}</td>
+                                                    <td>{{ $activity['hours'] }}</td>
                                                     <td>
-                                                        <a href="{{ route('order.add_activity', [$order['id'], $activity->id]) }}" class="btn btn-success btn-circle btn-sm" title="Agregar">
+                                                        <a href="{{ route('order.add_activity', [$order['order']['id'], $activity['id']]) }}" class="btn btn-success btn-circle btn-sm" title="Agregar">
                                                             <i class="fas fa-fw fa-plus"></i>
                                                         </a>
                                                     </td>
@@ -118,20 +118,20 @@
                                             <th>Retirar</th>
                                         </thead>
                                         <tbody>
-                                            @if (count($addedActivities) == 0)
+                                            @if (count($order['order']['activities']) == 0)
                                                 <tr>
                                                     <td colspan="4">
                                                         No existen actividades agregadas
                                                     </td>
                                                 </tr>
                                             @else
-                                                @foreach($addedActivities as $activity)
+                                                @foreach($order['order']['activities'] as $activity)
                                                 <tr>
-                                                    <td>{{ $activity->id }}</td>
-                                                    <td>{{ $activity->description }}</td>
-                                                    <td>{{ $activity->hours }}</td>
+                                                    <td>{{ $activity['id'] }}</td>
+                                                    <td>{{ $activity['description'] }}</td>
+                                                    <td>{{ $activity['hours'] }}</td>
                                                     <td>
-                                                        <a href="{{ route('order.remove_activity', [$order['id'], $activity->id]) }}" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
+                                                        <a href="{{ route('order.remove_activity', [$order['order']['id'], $activity['id']]) }}" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
                                                             <i class="fas fa-fw fa-minus"></i>
                                                         </a>
                                                     </td>
